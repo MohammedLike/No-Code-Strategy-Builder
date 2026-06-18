@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Strategy Builder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <h1>AI Strategy Builder</h1>
+    <div class="nav-links">
+      <a href="#query" class="active">Query</a>
+      <a href="#strategies">Strategies</a>
+      <a href="#search">Search</a>
+      <a href="#status">Status</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Query -->
+    <section id="query" class="active">
+      <h2>Natural Language Strategy Builder</h2>
+      <p class="subtitle">Describe a trading strategy and the AI will build it from existing patterns.</p>
+      <div class="input-row">
+        <input type="text" id="query-input" placeholder='e.g. "RSI mean reversion on Nifty with 2% SL"' autofocus>
+        <button id="query-btn" class="primary">Generate</button>
+      </div>
+      <div id="query-status" class="status-msg"></div>
+      <div id="query-result" class="result-panel hidden"></div>
+    </section>
+
+    <!-- Strategies -->
+    <section id="strategies">
+      <h2>Database Strategies</h2>
+      <div class="table-controls">
+        <span id="strategy-count"></span>
+        <button id="refresh-strategies">Refresh</button>
+      </div>
+      <div id="strategy-list" class="table-wrap"></div>
+      <div id="strategy-detail" class="result-panel hidden"></div>
+    </section>
+
+    <!-- Search -->
+    <section id="search">
+      <h2>Semantic Search (Qdrant)</h2>
+      <p class="subtitle">Search across all indexed collections.</p>
+      <div class="input-row">
+        <input type="text" id="search-input" placeholder="e.g. breakout strategy with RSI">
+        <button id="search-btn" class="primary">Search</button>
+      </div>
+      <div id="search-status" class="status-msg"></div>
+      <div id="search-results" class="result-panel hidden"></div>
+    </section>
+
+    <!-- Status -->
+    <section id="status">
+      <h2>System Status</h2>
+      <div id="health-panel"></div>
+      <div id="db-stats-panel"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
