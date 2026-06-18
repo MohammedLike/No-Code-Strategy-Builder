@@ -1,0 +1,4 @@
+DO $$ BEGIN
+  CREATE ROLE quant_user WITH LOGIN SUPERUSER PASSWORD 'quant_user';
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
