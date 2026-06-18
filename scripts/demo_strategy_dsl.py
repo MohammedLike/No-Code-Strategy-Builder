@@ -12,12 +12,12 @@ from psycopg2.extras import RealDictCursor
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from backend.app.strategy import (  # noqa: E402
+from backend.strategy import (  # noqa: E402
     compile_strategy,
     normalize_strategy_record,
     parse_condition_text,
 )
-from backend.app.strategy.examples import RSI_MEAN_REVERSION  # noqa: E402
+from backend.strategy.examples import RSI_MEAN_REVERSION  # noqa: E402
 from scripts.common import DATABASE_URL  # noqa: E402
 
 
@@ -36,7 +36,7 @@ def demo_parser() -> None:
 
 
 def demo_example_spec() -> None:
-    from backend.app.strategy.models import StrategySpec
+    from backend.strategy.models import StrategySpec
 
     print("=== Example Spec ===")
     spec = StrategySpec.model_validate(RSI_MEAN_REVERSION)

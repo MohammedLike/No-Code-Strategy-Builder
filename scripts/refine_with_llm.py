@@ -27,8 +27,8 @@ sys.path.insert(0, str(ROOT.parent))     # project root (for backend/)
 
 from search_qdrant import search
 
-from backend.app.llm.client import OllamaClient
-from backend.app.pipeline import StrategyPipeline
+from backend.llm.client import OllamaClient
+from backend.pipeline import StrategyPipeline
 
 
 def cmd_status(client: OllamaClient) -> None:

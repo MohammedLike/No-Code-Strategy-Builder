@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from backend.app.strategy.examples import RSI_MEAN_REVERSION
-from backend.app.strategy.models import StrategySpec
-from backend.app.strategy.normalizer import normalize_strategy_record
-from backend.app.strategy.parser import parse_condition_text
-from backend.app.strategy.compiler import compile_strategy
+from backend.strategy.examples import RSI_MEAN_REVERSION
+from backend.strategy.models import StrategySpec
+from backend.strategy.normalizer import normalize_strategy_record
+from backend.strategy.parser import parse_condition_text
+from backend.strategy.compiler import compile_strategy
 
 
 def test_parse_symbolic_condition() -> None:

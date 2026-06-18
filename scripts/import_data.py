@@ -14,11 +14,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_DATA_DIR = ROOT / "Raw Data"
+RAW_DATA_DIR = ROOT / "raw_data"
 SQL_DUMP = RAW_DATA_DIR / "streak_ai_backup_full.sql"
 CSV_FILE = RAW_DATA_DIR / "company_profiles.csv"
-COMPANY_SCHEMA = ROOT / "db" / "002_company_profiles.sql"
-PREAMBLE_SQL = ROOT / "db" / "001_preamble.sql"
+COMPANY_SCHEMA = ROOT / "db" / "migrations" / "002_company_profiles.sql"
+PREAMBLE_SQL = ROOT / "db" / "migrations" / "001_preamble.sql"
 
 CONTAINER = os.environ.get("POSTGRES_CONTAINER", "ai-builder-postgres")
 DB_USER = os.environ.get("POSTGRES_USER", "postgres")
@@ -129,7 +129,7 @@ def import_company_profiles() -> None:
                 )
             )
 
-    staging = ROOT / "db" / "_company_profiles_staging.csv"
+    staging = ROOT / "db" / "migrations" / "_company_profiles_staging.csv"
     with staging.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle)
         for row in rows:

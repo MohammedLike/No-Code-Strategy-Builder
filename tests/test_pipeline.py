@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from backend.app.pipeline import StrategyPipeline
-from backend.app.llm.client import OllamaClient
-from backend.app.llm.prompts import (
+from backend.pipeline import StrategyPipeline
+from backend.llm.client import OllamaClient
+from backend.llm.prompts import (
     build_normalize_prompt,
     build_refine_prompt,
     format_qdrant_results,

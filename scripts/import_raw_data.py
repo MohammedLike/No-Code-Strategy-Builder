@@ -1,5 +1,5 @@
 """
-Import all files from Raw Data/ into PostgreSQL.
+Import all files from raw_data/ into PostgreSQL.
 
 - Excel files -> dedicated import tables + normalized strategies table
 - company_profiles.csv -> upsert
@@ -22,8 +22,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import DATABASE_URL, ROOT
 
-RAW_DATA_DIR = ROOT / "Raw Data"
-SCHEMA_SQL = ROOT / "db" / "003_excel_tables.sql"
+RAW_DATA_DIR = ROOT / "raw_data"
+SCHEMA_SQL = ROOT / "db" / "migrations" / "003_excel_tables.sql"
 
 
 def slugify(text: str, prefix: str = "") -> str:

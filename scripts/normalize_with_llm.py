@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from backend.app.llm.normalizer import LLMNormalizer
-from backend.app.strategy.compiler import compile_strategy
+from backend.llm.normalizer import LLMNormalizer
+from backend.strategy.compiler import compile_strategy
 
 EXAMPLES = [
     "Buy BankNifty when SMA(20) crosses above SMA(50) on 15min chart. SL 1.5%, Target 3%. Exit when RSI(14) > 70.",

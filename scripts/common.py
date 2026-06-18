@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_DATA_DIR = ROOT / "Raw Data"
+RAW_DATA_DIR = ROOT / "raw_data"
 load_dotenv(ROOT / ".env")
 
 DATABASE_URL = os.environ["DATABASE_URL"]

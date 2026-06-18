@@ -6,8 +6,8 @@ import json
 import logging
 from typing import Any
 
-from backend.app.strategy.models import StrategySpec
-from backend.app.strategy.normalizer import normalize_strategy_record
+from backend.strategy.models import StrategySpec
+from backend.strategy.normalizer import normalize_strategy_record
 
 from .client import OllamaClient
 from .prompts import NORMALIZE_SYSTEM, build_normalize_prompt

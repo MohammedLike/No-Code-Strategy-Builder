@@ -6,7 +6,7 @@ venv/
 node_modules/
 .pytest_cache/
 *.log
-db/_*
+db/**/_*
 data/strategies_parquet/**/*.parquet
 data/postgres/
 data/qdrant/
