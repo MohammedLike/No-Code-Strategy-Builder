@@ -34,6 +34,29 @@ services:
       retries: 5
       start_period: 10s
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-builder-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ai_builder_ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/11434'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
 volumes:
   ai_builder_pgdata:
   ai_builder_qdrant_data:
+  ai_builder_ollama_data:

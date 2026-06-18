@@ -8,3 +8,10 @@ node_modules/
 *.log
 db/_*
 data/strategies_parquet/**/*.parquet
+data/postgres/
+data/qdrant/
+data/redis/
+data/ollama/
+data/ohlcv_parquet/
+data/data/
+
