@@ -155,8 +155,8 @@ async function loadStatus() {
       <div class="health-grid">
         <div class="health-card"><div class="label">PostgreSQL</div><div class="value ${checks.postgresql ? 'up' : 'down'}">${checks.postgresql ? 'Up' : 'Down'}</div></div>
         <div class="health-card"><div class="label">Qdrant</div><div class="value ${checks.qdrant ? 'up' : 'down'}">${checks.qdrant ? 'Up' : 'Down'}</div></div>
-        <div class="health-card"><div class="label">LLM (Ollama)</div><div class="value ${checks.llm_ollama ? 'up' : 'down'}">${checks.llm_ollama ? 'Up' : 'Down'}</div></div>
         <div class="health-card"><div class="label">Overall</div><div class="value ${health.status === 'ok' ? 'up' : 'down'}">${health.status === 'ok' ? 'Healthy' : 'Degraded'}</div></div>
+
       </div>`;
   } catch (err) {
     healthPanel.innerHTML = `<p class="err">Health check failed: ${escapeHtml(err.message)}</p>`;

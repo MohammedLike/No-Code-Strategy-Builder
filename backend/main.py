@@ -81,22 +81,15 @@ def health():
     except Exception as exc:
         logger.warning("Qdrant health check failed: %s", exc)
 
-    try:
-        from backend.llm import OllamaClient
-
-        llm_ok = OllamaClient().is_available()
-    except Exception as exc:
-        logger.warning("LLM health check failed: %s", exc)
-
     status = "ok" if pg_ok else "degraded"
     return {
         "status": status,
         "checks": {
             "postgresql": pg_ok,
             "qdrant": qd_ok,
-            "llm_ollama": llm_ok,
         },
     }
+
 
 
 # ---------------------------------------------------------------------------
