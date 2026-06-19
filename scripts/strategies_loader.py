@@ -11,6 +11,9 @@ from common import PARQUET_DIR
 
 JSON_COLUMNS = {
     "strategies": ["entry_rules", "exit_rules", "risk_params", "backtest_results", "metadata"],
+    "independent_strategies": ["entry_rules", "exit_rules", "risk_params", "strategy_metadata"],
+    "pine_scripts": ["strategy_spec", "metadata"],
+    "pine_indicators": ["params", "default_params", "inputs"],
 }
 
 

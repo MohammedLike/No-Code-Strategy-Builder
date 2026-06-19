@@ -23,15 +23,17 @@ from common import DATABASE_URL, PARQUET_DIR
 
 STRATEGY_TABLES = [
     "strategies",
-    "algo_bull_strategies",
-    "finstock_strategies",
-    "live_backtesting",
-    "streak_trading_strategies",
+    "independent_strategies",
+    "pine_scripts",
+    "pine_indicators",
     "streak_indicator_suggestions",
 ]
 
 JSON_COLUMNS = {
     "strategies": ["entry_rules", "exit_rules", "risk_params", "backtest_results", "metadata"],
+    "independent_strategies": ["entry_rules", "exit_rules", "risk_params", "strategy_metadata"],
+    "pine_scripts": ["strategy_spec", "metadata"],
+    "pine_indicators": ["params", "default_params", "inputs"],
 }
 
 

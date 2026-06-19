@@ -14,4 +14,7 @@ data/redis/
 data/ollama/
 data/ohlcv_parquet/
 data/data/
+data.gz
+raw_data/
+
 

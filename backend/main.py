@@ -109,7 +109,7 @@ def list_strategies(limit: int = Query(50, ge=1, le=500), offset: int = Query(0,
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                "SELECT id, name, slug, category, hypothesis, created_at "
+                "SELECT id, name, slug, category, hypothesis, indicator, created_at "
                 "FROM public.strategies ORDER BY created_at DESC LIMIT %s OFFSET %s",
                 (limit, offset),
             )
@@ -136,11 +136,12 @@ def get_strategy(strategy_id: str):
 @app.get("/api/strategies/table/{table_name}")
 def list_raw_strategies(table_name: str, limit: int = Query(50, ge=1, le=500)):
     allowed = {
-        "algo_bull_strategies",
-        "finstock_strategies",
-        "live_backtesting",
-        "live_scanners",
-        "streak_trading_strategies",
+        "strategies",
+        "independent_strategies",
+        "pine_scripts",
+        "pine_indicators",
+        "backtests",
+        "ingest_jobs",
         "streak_indicator_suggestions",
     }
     if table_name not in allowed:
@@ -174,13 +175,15 @@ def list_db_tables():
 def db_stats():
     queries = {
         "strategies": "SELECT COUNT(*) AS c FROM public.strategies",
-        "algo_bull_strategies": "SELECT COUNT(*) AS c FROM public.algo_bull_strategies",
-        "finstock_strategies": "SELECT COUNT(*) AS c FROM public.finstock_strategies",
-        "live_backtesting": "SELECT COUNT(*) AS c FROM public.live_backtesting",
-        "live_scanners": "SELECT COUNT(*) AS c FROM public.live_scanners",
-        "streak_trading_strategies": "SELECT COUNT(*) AS c FROM public.streak_trading_strategies",
+        "independent_strategies": "SELECT COUNT(*) AS c FROM public.independent_strategies",
+        "pine_scripts": "SELECT COUNT(*) AS c FROM public.pine_scripts",
+        "pine_indicators": "SELECT COUNT(*) AS c FROM public.pine_indicators",
+        "backtests": "SELECT COUNT(*) AS c FROM public.backtests",
+        "ingest_jobs": "SELECT COUNT(*) AS c FROM public.ingest_jobs",
+        "ohlcv": "SELECT COUNT(*) AS c FROM public.ohlcv",
+        "options_chain": "SELECT COUNT(*) AS c FROM public.options_chain",
+        "ticks": "SELECT COUNT(*) AS c FROM public.ticks",
         "streak_indicator_suggestions": "SELECT COUNT(*) AS c FROM public.streak_indicator_suggestions",
-        "company_profiles": "SELECT COUNT(*) AS c FROM public.company_profiles",
     }
     stats = {}
     with psycopg2.connect(DATABASE_URL) as conn:

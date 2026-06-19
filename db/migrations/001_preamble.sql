@@ -2,3 +2,9 @@ DO $$ BEGIN
   CREATE ROLE quant_user WITH LOGIN SUPERUSER PASSWORD 'quant_user';
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+

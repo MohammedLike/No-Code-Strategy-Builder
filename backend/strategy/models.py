@@ -132,6 +132,7 @@ class StrategyRecord(BaseModel):
     slug: str | None = None
     category: str | None = None
     hypothesis: str | None = None
+    indicator: str | None = None
     entry_rules: dict[str, Any] | None = None
     exit_rules: dict[str, Any] | None = None
     risk_params: dict[str, Any] | None = None

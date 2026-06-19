@@ -64,11 +64,12 @@ async function loadStrategies() {
     const data = await res.json();
     strategyCount.textContent = `Showing ${data.data.length} of ${data.total} strategies`;
     if (!data.data.length) { strategyList.innerHTML = '<p>No strategies found.</p>'; return; }
-    let html = '<table><thead><tr><th>Name</th><th>Category</th><th>Slug</th><th>Created</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>Name</th><th>Category</th><th>Indicator</th><th>Slug</th><th>Created</th></tr></thead><tbody>';
     for (const row of data.data) {
       html += `<tr class="clickable" data-id="${escapeHtml(row.id)}">
         <td>${escapeHtml(row.name || 'Unnamed')}</td>
         <td><span class="badge green">${escapeHtml(row.category || '—')}</span></td>
+        <td><span class="badge purple">${escapeHtml(row.indicator || '—')}</span></td>
         <td>${escapeHtml(row.slug || '—')}</td>
         <td>${row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}</td>
       </tr>`;

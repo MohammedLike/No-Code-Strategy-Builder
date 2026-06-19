@@ -19,11 +19,12 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 from common import DATABASE_URL, ROOT
+sys.path.insert(0, str(ROOT))
 
 RAW_DATA_DIR = ROOT / "raw_data"
 SCHEMA_SQL = ROOT / "db" / "migrations" / "003_excel_tables.sql"
+
 
 
 def slugify(text: str, prefix: str = "") -> str:
@@ -71,6 +72,23 @@ def insert_rows(table: str, columns: list[str], rows: list[tuple]) -> int:
     return len(rows)
 
 
+clean_suffix_pat = re.compile(r'\s+(strategy|setup|bearish\s+setup|bullish\s+setup)\b', re.IGNORECASE)
+
+
+def extract_indicator_from_dict(row_dict: dict) -> str:
+    try:
+        from backend.strategy.normalizer import normalize_strategy_record
+        spec = normalize_strategy_record(row_dict)
+        if spec.metadata.indicators_used:
+            return ", ".join(spec.metadata.indicators_used)
+    except Exception:
+        pass
+
+    name_clean = clean_suffix_pat.sub('', row_dict['name']).strip()
+    name_clean = re.sub(r'\s+', ' ', name_clean)
+    return name_clean or 'UNKNOWN'
+
+
 def upsert_strategies(rows: list[tuple]) -> int:
     rows = dedupe_strategy_rows(rows)
     if not rows:
@@ -78,7 +96,7 @@ def upsert_strategies(rows: list[tuple]) -> int:
 
     sql = """
         INSERT INTO public.strategies
-            (id, name, slug, category, hypothesis, entry_rules, exit_rules, risk_params, metadata)
+            (id, name, slug, category, hypothesis, entry_rules, exit_rules, risk_params, metadata, indicator)
         VALUES %s
         ON CONFLICT (slug) DO UPDATE SET
             name = EXCLUDED.name,
@@ -87,7 +105,8 @@ def upsert_strategies(rows: list[tuple]) -> int:
             entry_rules = EXCLUDED.entry_rules,
             exit_rules = EXCLUDED.exit_rules,
             risk_params = EXCLUDED.risk_params,
-            metadata = EXCLUDED.metadata
+            metadata = EXCLUDED.metadata,
+            indicator = EXCLUDED.indicator
     """
     with psycopg2.connect(DATABASE_URL) as conn, conn.cursor() as cur:
         execute_values(cur, sql, rows)
@@ -116,6 +135,18 @@ def strategy_row(
     exit_rules = {"condition": exit_} if exit_ else None
     risk_params = {"settings": risk} if risk else None
     metadata = {"source_file": source, **(extra or {})}
+
+    row_dict = {
+        "name": name,
+        "category": category,
+        "hypothesis": hypothesis,
+        "entry_rules": entry_rules,
+        "exit_rules": exit_rules,
+        "risk_params": risk_params,
+        "metadata": metadata,
+    }
+    indicator = extract_indicator_from_dict(row_dict)
+
     return (
         str(uuid.uuid4()),
         name,
@@ -126,7 +157,9 @@ def strategy_row(
         json.dumps(exit_rules) if exit_rules else None,
         json.dumps(risk_params) if risk_params else None,
         json.dumps(metadata),
+        indicator,
     )
+
 
 
 def dedupe_strategy_rows(rows: list[tuple]) -> list[tuple]:
@@ -455,6 +488,22 @@ def verify() -> None:
 
 
 def main() -> None:
+    # Check if raw Excel files exist
+    required_files = [
+        "Algo bull.xlsx",
+        "Finstock Pre Built Strategies.xlsx",
+        "live backtesting.xlsx",
+        "Live scanner.xlsx",
+        "streak_trading_strategies.xlsx",
+        "Streak_Indicators_Final_Bullish_Bearish.xlsx"
+    ]
+    missing = [f for f in required_files if not (RAW_DATA_DIR / f).exists()]
+    if missing:
+        print(f"Notice: Raw Excel ingest is inactive/legacy. Missing files: {missing}")
+        print("The database has migrated to the new schema loaded via 'scripts/import_data.py' from 'data.gz'.")
+        print("Exiting import_raw_data.py gracefully.")
+        return
+
     print("Creating raw Excel tables ...")
     run_sql_file(SCHEMA_SQL)
     print("Truncating Excel import tables for fresh import ...")

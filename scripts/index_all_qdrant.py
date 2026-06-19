@@ -60,9 +60,50 @@ def _strategy_document(row: dict[str, Any]) -> str:
             f"Slug: {row.get('slug')}",
             f"Category: {row.get('category')}",
             f"Hypothesis: {row.get('hypothesis')}",
+            f"Indicator: {row.get('indicator')}" if row.get("indicator") else None,
             f"Entry rules: {json.dumps(row.get('entry_rules'), ensure_ascii=False)}" if row.get("entry_rules") else None,
             f"Exit rules: {json.dumps(row.get('exit_rules'), ensure_ascii=False)}" if row.get("exit_rules") else None,
             f"Risk params: {json.dumps(row.get('risk_params'), ensure_ascii=False)}" if row.get("risk_params") else None,
+        ]
+    )
+
+def _independent_strategy_document(row: dict[str, Any]) -> str:
+    return _join_parts(
+        [
+            f"Name: {row.get('name')}",
+            f"Slug: {row.get('slug')}",
+            f"Category: {row.get('category')}",
+            f"Hypothesis: {row.get('hypothesis')}",
+            f"Indicator: {row.get('indicator')}" if row.get("indicator") else None,
+            f"Entry rules: {json.dumps(row.get('entry_rules'), ensure_ascii=False)}" if row.get("entry_rules") else None,
+            f"Exit rules: {json.dumps(row.get('exit_rules'), ensure_ascii=False)}" if row.get("exit_rules") else None,
+            f"Risk params: {json.dumps(row.get('risk_params'), ensure_ascii=False)}" if row.get("risk_params") else None,
+        ]
+    )
+
+
+def _pine_script_document(row: dict[str, Any]) -> str:
+    return _join_parts(
+        [
+            f"Name: {row.get('name')}",
+            f"Slug: {row.get('slug')}",
+            f"Symbol: {row.get('symbol')}",
+            f"Period: {row.get('period')}",
+            f"Resolution: {row.get('resolution')}",
+            f"Prompt: {row.get('prompt')}",
+            f"Pine Script Source: {row.get('pine_script')}",
+        ]
+    )
+
+
+def _pine_indicator_document(row: dict[str, Any]) -> str:
+    return _join_parts(
+        [
+            f"Name: {row.get('display_name')} ({row.get('pine_name')})",
+            f"Category: {row.get('category')}",
+            f"Description: {row.get('description')}",
+            f"Example Usage: {row.get('example_usage')}",
+            f"Returns Type: {row.get('returns_type')}",
         ]
     )
 
@@ -71,7 +112,7 @@ TABLE_CONFIGS: list[TableIndexConfig] = [
     TableIndexConfig(
         collection="strategies",
         sql="""
-            SELECT id::text AS id, name, slug, category, hypothesis,
+            SELECT id::text AS id, name, slug, category, hypothesis, indicator,
                    entry_rules, exit_rules, risk_params, metadata, created_at
             FROM public.strategies
             ORDER BY created_at
@@ -85,106 +126,67 @@ TABLE_CONFIGS: list[TableIndexConfig] = [
             "slug": row.get("slug"),
             "category": row.get("category"),
             "hypothesis": row.get("hypothesis"),
+            "indicator": row.get("indicator"),
         },
     ),
     TableIndexConfig(
-        collection="algo_bull_strategies",
+        collection="independent_strategies",
         sql="""
-            SELECT id, strategy_id, strategy_name, strategy_type, underlying_asset,
-                   entry_time, exit_time, capital, description, source_file
-            FROM public.algo_bull_strategies
-            ORDER BY id
+            SELECT id::text AS id, name, slug, category, hypothesis, indicator,
+                   entry_rules, exit_rules, risk_params, strategy_metadata, created_at
+            FROM public.independent_strategies
+            ORDER BY created_at
         """,
-        point_id=lambda row: int_point_id(row["id"]),
-        document=lambda row: _join_parts(
-            [
-                f"Strategy: {row.get('strategy_name')}",
-                f"ID: {row.get('strategy_id')}",
-                f"Type: {row.get('strategy_type')}",
-                f"Underlying: {row.get('underlying_asset')}",
-                f"Entry: {row.get('entry_time')}",
-                f"Exit: {row.get('exit_time')}",
-                f"Capital: {row.get('capital')}",
-                f"Description: {row.get('description')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "algo_bull_strategies", "record_id": row["id"], **row},
+        point_id=lambda row: str(row["id"]),
+        document=_independent_strategy_document,
+        payload=lambda row: {
+            "source_table": "independent_strategies",
+            "record_id": str(row["id"]),
+            "name": row.get("name"),
+            "slug": row.get("slug"),
+            "category": row.get("category"),
+            "hypothesis": row.get("hypothesis"),
+            "indicator": row.get("indicator"),
+        },
     ),
     TableIndexConfig(
-        collection="finstock_strategies",
+        collection="pine_scripts",
         sql="""
-            SELECT id, row_num, strategy_name, description, entry_conditions,
-                   exit_conditions, risk_management, classification, source_file
-            FROM public.finstock_strategies
-            ORDER BY id
+            SELECT id::text AS id, name, slug, symbol, period, resolution, prompt, pine_script, created_at
+            FROM public.pine_scripts
+            ORDER BY created_at
         """,
-        point_id=lambda row: int_point_id(row["id"]),
-        document=lambda row: _join_parts(
-            [
-                f"Strategy: {row.get('strategy_name')}",
-                f"Classification: {row.get('classification')}",
-                f"Description: {row.get('description')}",
-                f"Entry: {row.get('entry_conditions')}",
-                f"Exit: {row.get('exit_conditions')}",
-                f"Risk: {row.get('risk_management')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "finstock_strategies", "record_id": row["id"], **row},
+        point_id=lambda row: str(row["id"]),
+        document=_pine_script_document,
+        payload=lambda row: {
+            "source_table": "pine_scripts",
+            "record_id": str(row["id"]),
+            "name": row.get("name"),
+            "slug": row.get("slug"),
+            "symbol": row.get("symbol"),
+            "period": row.get("period"),
+            "resolution": row.get("resolution"),
+            "prompt": row.get("prompt"),
+        },
     ),
     TableIndexConfig(
-        collection="live_backtesting",
+        collection="pine_indicators",
         sql="""
-            SELECT id, strategy_name, category, direction, source_file
-            FROM public.live_backtesting
-            ORDER BY id
+            SELECT id::text AS id, pine_name, display_name, category, description, example_usage, returns_type, created_at
+            FROM public.pine_indicators
+            ORDER BY created_at
         """,
-        point_id=lambda row: int_point_id(row["id"]),
-        document=lambda row: _join_parts(
-            [
-                f"Strategy: {row.get('strategy_name')}",
-                f"Category: {row.get('category')}",
-                f"Direction: {row.get('direction')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "live_backtesting", "record_id": row["id"], **row},
-    ),
-    TableIndexConfig(
-        collection="live_scanners",
-        sql="""
-            SELECT id, scanner_name, category, direction, source_file
-            FROM public.live_scanners
-            ORDER BY id
-        """,
-        point_id=lambda row: int_point_id(row["id"]),
-        document=lambda row: _join_parts(
-            [
-                f"Scanner: {row.get('scanner_name')}",
-                f"Category: {row.get('category')}",
-                f"Direction: {row.get('direction')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "live_scanners", "record_id": row["id"], **row},
-    ),
-    TableIndexConfig(
-        collection="streak_trading_strategies",
-        sql="""
-            SELECT id, strategy_name, description, entry_conditions, exit_conditions,
-                   risk_management, classification, source_file
-            FROM public.streak_trading_strategies
-            ORDER BY id
-        """,
-        point_id=lambda row: int_point_id(row["id"]),
-        document=lambda row: _join_parts(
-            [
-                f"Strategy: {row.get('strategy_name')}",
-                f"Classification: {row.get('classification')}",
-                f"Description: {row.get('description')}",
-                f"Entry: {row.get('entry_conditions')}",
-                f"Exit: {row.get('exit_conditions')}",
-                f"Risk: {row.get('risk_management')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "streak_trading_strategies", "record_id": row["id"], **row},
+        point_id=lambda row: str(row["id"]),
+        document=_pine_indicator_document,
+        payload=lambda row: {
+            "source_table": "pine_indicators",
+            "record_id": str(row["id"]),
+            "pine_name": row.get("pine_name"),
+            "display_name": row.get("display_name"),
+            "category": row.get("category"),
+            "description": row.get("description"),
+            "returns_type": row.get("returns_type"),
+        },
     ),
     TableIndexConfig(
         collection="streak_indicator_suggestions",
@@ -193,7 +195,7 @@ TABLE_CONFIGS: list[TableIndexConfig] = [
             FROM public.streak_indicator_suggestions
             ORDER BY id
         """,
-        point_id=lambda row: int_point_id(row["id"]),
+        point_id=lambda row: int(row["id"]),
         document=lambda row: _join_parts(
             [
                 f"Indicator: {row.get('indicator')}",
@@ -204,65 +206,20 @@ TABLE_CONFIGS: list[TableIndexConfig] = [
                 f"Operators: {row.get('supported_operators')}",
             ]
         ),
-        payload=lambda row: {"source_table": "streak_indicator_suggestions", "record_id": row["id"], **row},
-    ),
-    TableIndexConfig(
-        collection="company_profiles",
-        sql="""
-            SELECT ticker, name, sector, industry, description, source
-            FROM public.company_profiles
-            ORDER BY ticker
-        """,
-        point_id=lambda row: stable_point_id(f"company_profiles:{row['ticker']}"),
-        document=lambda row: _join_parts(
-            [
-                f"Ticker: {row.get('ticker')}",
-                f"Name: {row.get('name')}",
-                f"Sector: {row.get('sector')}",
-                f"Industry: {row.get('industry')}",
-                f"Description: {row.get('description')}",
-            ]
-        ),
-        payload=lambda row: {"source_table": "company_profiles", "record_id": row["ticker"], **row},
-    ),
-    TableIndexConfig(
-        collection="ohlcv",
-        sql="""
-            SELECT symbol,
-                   resolution,
-                   COUNT(*)::bigint AS bar_count,
-                   MIN(time) AS start_time,
-                   MAX(time) AS end_time,
-                   ROUND(AVG(close)::numeric, 2) AS avg_close,
-                   ROUND(MIN(close)::numeric, 2) AS min_close,
-                   ROUND(MAX(close)::numeric, 2) AS max_close
-            FROM public.ohlcv
-            GROUP BY symbol, resolution
-            ORDER BY symbol, resolution
-        """,
-        point_id=lambda row: stable_point_id(f"ohlcv:{row['symbol']}:{row['resolution']}"),
-        document=lambda row: _join_parts(
-            [
-                f"Symbol: {row.get('symbol')}",
-                f"Resolution: {row.get('resolution')}",
-                f"Bars: {row.get('bar_count')}",
-                f"Period: {row.get('start_time')} to {row.get('end_time')}",
-                f"Close range: {row.get('min_close')} - {row.get('max_close')}",
-                f"Average close: {row.get('avg_close')}",
-            ]
-        ),
         payload=lambda row: {
-            "source_table": "ohlcv",
-            "record_id": f"{row['symbol']}_{row['resolution']}",
-            "symbol": row.get("symbol"),
-            "resolution": row.get("resolution"),
-            "bar_count": int(row.get("bar_count") or 0),
-            "start_time": str(row.get("start_time")),
-            "end_time": str(row.get("end_time")),
-            "avg_close": float(row.get("avg_close") or 0),
+            "source_table": "streak_indicator_suggestions",
+            "record_id": str(row["id"]),
+            "sheet_name": row.get("sheet_name"),
+            "indicator": row.get("indicator"),
+            "bias": row.get("bias"),
+            "suggestion": row.get("suggestion"),
+            "tag": row.get("tag"),
+            "category": row.get("category"),
+            "supported_operators": row.get("supported_operators"),
         },
     ),
 ]
+
 
 
 def _sanitize_payload(payload: dict[str, Any]) -> dict[str, Any]:
